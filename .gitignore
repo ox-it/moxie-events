@@ -33,3 +33,16 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# IDEA (PyCharm)
+.idea/
+
+# OS X
+.DS_Store
+
+# Vim
+*.swp
+
+# Documentation build
+docs/build/
+
