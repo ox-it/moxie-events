@@ -1,5 +1,4 @@
-import requests
-import datetime
+from datetime import datetime
 from lxml import etree
 from moxie_events.domain import Event
 
@@ -21,8 +20,7 @@ class TalksCamEventsImporter(object):
         :param url: URL of the feed
         :return: list of events
         """
-        feed = requests.get(url, timeout=self.FETCH_TIMEOUT).text
-        xml = etree.parse(feed)
+        xml = etree.parse(url)
         talks = []
         for talk in xml.findall('talk'):
             talks.append(self.parse_talk(talk))
@@ -33,14 +31,14 @@ class TalksCamEventsImporter(object):
         :param xml: talk object
         :return: Event object
         """
-        event = Event(talk.find('id'))
+        event = Event(talk.find('id').text)
         event.name = talk.find('title').text.strip()
         event.description = talk.find('abstract').text.strip()
         event.source_url = talk.find('url').text
         event.start_time = self.parse_date(talk.find('start_time').text)
         event.end_time = self.parse_date(talk.find('start_time').text)
         event.location = talk.find('venue').text.strip()
-        return event
+        return event.to_solr_dict()
 
     def parse_date(self, date):
         """Parse date as Tue, 21 Feb 2012 23:49:34 +0000
