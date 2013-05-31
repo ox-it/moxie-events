@@ -1,3 +1,8 @@
+from datetime import datetime
+
+SOLR_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
+
 class Event(object):
     def __init__(self, uid):
         self.uid = uid
@@ -15,3 +20,30 @@ class Event(object):
     end_time = None
 
     source_url = None
+
+    def to_solr_dict(self):
+        return {
+            'source_name': self.source_url,
+            'source_url': self.source_url,
+            'event_uid': self.uid,
+            'event_title': self.name,
+            'event_description': self.description,
+            'event_start': self._date_to_solr(self.start_time),
+            'event_end': self._date_to_solr(self.end_time),
+        }
+
+    @classmethod
+    def from_solr_dict(self, d):
+        event = Event(d['event_uid'])
+        event.source_url = d['source_url']
+        event.name = d['event_title']
+        event.description = d['event_description']
+        event.start_time = self._parse_date(d['event_start'])
+        event.end_time = self._parse_date(d['event_end'])
+        return event
+
+    def _parse_date(self, date):
+        return datetime.strptime(date, SOLR_DATE_FORMAT)
+
+    def _date_to_solr(self, date):
+        return date.strftime(SOLR_DATE_FORMAT)
