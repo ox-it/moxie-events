@@ -26,8 +26,6 @@ class EventRepresentation(Representation):
 class HALEventRepresentation(EventRepresentation):
 
     def __init__(self, event, endpoint):
-        """HAL+JSON representation of a webcam
-        """
         super(HALEventRepresentation, self).__init__(event)
         self.endpoint = endpoint
 
