@@ -18,4 +18,8 @@ class EventsService(Service):
         return [Event.from_solr_dict(e) for e in results.results]
 
     def get_event(self, uid):
-        pass
+        docs = searcher.get_by_ids([uid])
+        if docs.results:
+            return Event.from_solr_dict(docs.results[0])
+        else:
+            return None

@@ -38,9 +38,9 @@ class EventsForDate(ServiceView):
 
 class EventView(ServiceView):
 
-    def handle_request(self, uid):
+    def handle_request(self, ident):
         service = EventsService.from_context()
-        return service.get_event(uid)
+        return service.get_event(ident)
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
