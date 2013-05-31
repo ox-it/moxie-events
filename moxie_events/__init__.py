@@ -28,6 +28,8 @@ def get_routes():
                             title='Today events')
     representation.add_link('hl:date', '{bp}{{yyyy}}-{{mm}}-{{dd}}'.format(bp=path),
                             templated=True, title="Events for given date")
+    representation.add_link('hl:event', '{bp}event/{{id}}'.format(bp=path),
+                            templated=True, title="Event")
     response = make_response(representation.as_json(), 200)
     response.headers['Content-Type'] = "application/json"
     return response
