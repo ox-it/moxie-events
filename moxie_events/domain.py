@@ -32,18 +32,20 @@ class Event(object):
             'event_end': self._date_to_solr(self.end_time),
         }
 
-    @classmethod
-    def from_solr_dict(self, d):
+    @staticmethod
+    def from_solr_dict(d):
         event = Event(d['event_uid'])
         event.source_url = d['source_url']
         event.name = d['event_title']
         event.description = d['event_description']
-        event.start_time = self._parse_date(d['event_start'])
-        event.end_time = self._parse_date(d['event_end'])
+        event.start_time = Event._parse_date(d['event_start'])
+        event.end_time = Event._parse_date(d['event_end'])
         return event
 
-    def _parse_date(self, date):
+    @staticmethod
+    def _parse_date(date):
         return datetime.strptime(date, SOLR_DATE_FORMAT)
 
-    def _date_to_solr(self, date):
+    @staticmethod
+    def _date_to_solr(date):
         return date.strftime(SOLR_DATE_FORMAT)

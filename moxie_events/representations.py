@@ -17,8 +17,8 @@ class EventRepresentation(Representation):
             'name': self.event.name,
             'description': self.event.description,
             'location': self.event.location,
-            'start_time': self.event.start_time,
-            'end_time': self.event.end_time,
+            'start_time': self.event.start_time.isoformat(),
+            'end_time': self.event.end_time.isoformat(),
             'source_url': self.event.source_url
         }
 

@@ -2,7 +2,7 @@ from flask import Blueprint, request, make_response
 
 from moxie.core.representations import HALRepresentation
 
-from .views import EventsToday, EventsForDate
+from .views import EventsToday, EventsForDate, EventView
 
 
 def create_blueprint(blueprint_name, conf):
@@ -13,6 +13,8 @@ def create_blueprint(blueprint_name, conf):
     events_blueprint.add_url_rule('/today', view_func=EventsToday.as_view('today'))
 
     events_blueprint.add_url_rule('/<year>-<month>-<day>', view_func=EventsForDate.as_view('day'))
+
+    events_blueprint.add_url_rule('/event/<ident>', view_func=EventView.as_view('event'))
 
     return events_blueprint
 
