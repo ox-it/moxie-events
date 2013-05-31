@@ -41,9 +41,9 @@ class HALEventRepresentation(EventRepresentation):
 
 class HALEventsRepresentation(object):
 
-    def __init__(self, events, endpoint):
+    def __init__(self, events, path):
         self.events = events
-        self.endpoint = endpoint
+        self.path = path
 
     def as_json(self):
         return jsonify(self.as_dict())
@@ -52,5 +52,5 @@ class HALEventsRepresentation(object):
         representation = HALRepresentation({})
         representation.add_embed('events', [HALEventRepresentation(e, 'events.event').as_dict()
                                             for e in self.events])
-        representation.add_link('self', url_for('events.today'))
+        representation.add_link('self', self.path)
         return representation.as_dict()

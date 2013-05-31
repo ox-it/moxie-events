@@ -18,7 +18,7 @@ class EventsToday(ServiceView):
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
-        return HALEventsRepresentation(response, request.url_rule.endpoint).as_json()
+        return HALEventsRepresentation(response, request.path).as_json()
 
 
 class EventsForDate(ServiceView):
@@ -33,7 +33,7 @@ class EventsForDate(ServiceView):
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
-        return HALEventsRepresentation(response, request.url_rule.endpoint).as_json()
+        return HALEventsRepresentation(response, request.path).as_json()
 
 
 class EventView(ServiceView):
