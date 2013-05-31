@@ -4,6 +4,7 @@ from flask import request
 
 from moxie.core.views import ServiceView, accepts
 from moxie.core.exceptions import abort
+from werkzeug.wrappers import BaseResponse
 from moxie.core.representations import HAL_JSON, JSON
 
 from .services import EventsService
@@ -33,15 +34,26 @@ class EventsForDate(ServiceView):
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
-        return HALEventsRepresentation(response, request.path).as_json()
+        if issubclass(type(response), BaseResponse):
+            return response
+        else:
+            return HALEventsRepresentation(response, request.path).as_json()
 
 
 class EventView(ServiceView):
 
     def handle_request(self, ident):
         service = EventsService.from_context()
-        return service.get_event(ident)
+        event = service.get_event(ident)
+        if event:
+            return event
+        else:
+            return abort(404)
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
-        return HALEventRepresentation(response, request.url_rule.endpoint).as_json()
+        if issubclass(type(response), BaseResponse):
+            # to handle 301 redirections and 404
+            return response
+        else:
+            return HALEventRepresentation(response, request.url_rule.endpoint).as_json()
