@@ -8,10 +8,15 @@ from moxie_events.importers.talks_cam import TalksCamEventsImporter
 logger = logging.getLogger(__name__)
 BLUEPRINT_NAME = 'events'
 
+FEEDS_URLS_KEY = 'TALKS_CAM_URLS'
+
 
 @celery.task
 def import_ox_talks(force_update=False):
     app = create_app()
     with app.blueprint_context(BLUEPRINT_NAME):
-        importer = TalksCamEventsImporter(['http://talks.ox.ac.uk/show/xml/4563'], searcher)
-        importer.run()
+        if FEEDS_URLS_KEY in app.config:
+            importer = TalksCamEventsImporter(app.config['TALKS_CAM_URLS'], searcher)
+            importer.run()
+        else:
+            logger.warn("TalksCam provider not configured with {key} in config.".format(key=FEEDS_URLS_KEY))
