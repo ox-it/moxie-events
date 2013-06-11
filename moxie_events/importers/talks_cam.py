@@ -40,7 +40,9 @@ class TalksCamEventsImporter(object):
         """
         event = Event(talk.find('id').text)
         event.name = talk.find('title').text.strip()
-        event.description = talk.find('abstract').text.strip()
+        description = talk.find('abstract').text
+        if description:
+            event.description = description.strip()
         event.source_url = talk.find('url').text
         event.start_time = self.parse_date(talk.find('start_time').text)
         event.end_time = self.parse_date(talk.find('start_time').text)
