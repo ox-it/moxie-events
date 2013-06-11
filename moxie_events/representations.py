@@ -1,6 +1,6 @@
 from flask import url_for, jsonify
 
-from moxie.core.representations import Representation, HALRepresentation
+from moxie.core.representations import Representation, HALRepresentation, get_nav_links
 
 
 class EventRepresentation(Representation):
@@ -41,9 +41,15 @@ class HALEventRepresentation(EventRepresentation):
 
 class HALEventsRepresentation(object):
 
-    def __init__(self, events, path):
+    def __init__(self, events, endpoint, start, count, size, day=None, month=None, year=None):
         self.events = events
-        self.path = path
+        self.endpoint = endpoint
+        self.start = start
+        self.count = count
+        self.size = size
+        self.day = day
+        self.month = month
+        self.year = year
 
     def as_json(self):
         return jsonify(self.as_dict())
@@ -52,5 +58,11 @@ class HALEventsRepresentation(object):
         representation = HALRepresentation({})
         representation.add_embed('events', [HALEventRepresentation(e, 'events.event').as_dict()
                                             for e in self.events])
-        representation.add_link('self', self.path)
+        if self.day and self.month and self.year:
+            representation.add_links(get_nav_links(self.endpoint, self.start, self.count, self.size,
+                                                   day=self.day, month=self.month, year=self.year))
+            representation.add_link('self', url_for(self.endpoint, day=self.day, month=self.month, year=self.year))
+        else:
+            representation.add_links(get_nav_links(self.endpoint, self.start, self.count, self.size))
+            representation.add_link('self', url_for(self.endpoint))
         return representation.as_dict()
