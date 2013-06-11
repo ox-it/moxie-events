@@ -13,12 +13,14 @@ class EventRepresentation(Representation):
 
     def as_dict(self):
         return {
+            '@context': 'http://schema.org',
+            '@type': 'Event',
             'id': self.event.uid,
             'name': self.event.name,
             'description': self.event.description,
             'location': self.event.location,
-            'start_time': self.event.start_time.isoformat(),
-            'end_time': self.event.end_time.isoformat(),
+            'startDate': self.event.start_time.isoformat(),
+            'endDate': self.event.end_time.isoformat(),
             'source_url': self.event.source_url
         }
 
