@@ -1,6 +1,10 @@
 from datetime import datetime
 from lxml import etree
+import logging
+
 from moxie_events.domain import Event
+
+logger = logging.getLogger(__name__)
 
 
 class TalksCamEventsImporter(object):
@@ -23,7 +27,10 @@ class TalksCamEventsImporter(object):
         xml = etree.parse(url)
         talks = []
         for talk in xml.findall('talk'):
-            talks.append(self.parse_talk(talk))
+            try:
+                talks.append(self.parse_talk(talk))
+            except:
+                logger.error("Couldn't parse talk", exc_info=True)
         return talks
 
     def parse_talk(self, talk):
