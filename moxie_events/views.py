@@ -29,13 +29,13 @@ class EventsSearch(ServiceView):
             dt_start = datetime.now()
         else:
             try:
-                dt_start = to_datetime(dt_start)
+                dt_start = to_datetime(dt_start, 0, 0)
             except ValueError as ve:
                 return abort(400, 'from: {m}'.format(m=ve.message))
 
         if dt_end:
             try:
-                dt_end = to_datetime(dt_end)
+                dt_end = to_datetime(dt_end, 23, 59)
             except ValueError as ve:
                 return abort(400, 'to: {m}'.format(m=ve.message))
 
@@ -74,6 +74,6 @@ class EventView(ServiceView):
             return HALEventRepresentation(response, request.url_rule.endpoint).as_json()
 
 
-def to_datetime(dt):
+def to_datetime(dt, hour, minute):
     year, month, day = dt.split('-')
-    return datetime(int(year), int(month), int(day))
+    return datetime(int(year), int(month), int(day), hour=hour, minute=minute)
