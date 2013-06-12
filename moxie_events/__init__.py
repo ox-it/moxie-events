@@ -2,7 +2,7 @@ from flask import Blueprint, request, make_response
 
 from moxie.core.representations import HALRepresentation
 
-from .views import EventsToday, EventsForDate, EventView, EventsSearch
+from .views import EventView, EventsSearch
 
 
 def create_blueprint(blueprint_name, conf):
@@ -12,11 +12,7 @@ def create_blueprint(blueprint_name, conf):
 
     events_blueprint.add_url_rule('/search', view_func=EventsSearch.as_view('search'))
 
-    events_blueprint.add_url_rule('/today', view_func=EventsToday.as_view('today'))
-
-    events_blueprint.add_url_rule('/<year>-<month>-<day>', view_func=EventsForDate.as_view('day'))
-
-    events_blueprint.add_url_rule('/event/<ident>', view_func=EventView.as_view('event'))
+    events_blueprint.add_url_rule('/<ident>', view_func=EventView.as_view('event'))
 
     return events_blueprint
 
@@ -28,10 +24,6 @@ def get_routes():
     representation.add_link('self', '{bp}'.format(bp=path))
     representation.add_link('hl:search', '{bp}search'.format(bp=path),
                             title="Search events")
-    representation.add_link('hl:today', '{bp}today'.format(bp=path),
-                            title='Today events')
-    representation.add_link('hl:date', '{bp}{{yyyy}}-{{mm}}-{{dd}}'.format(bp=path),
-                            templated=True, title="Events for given date")
     representation.add_link('hl:event', '{bp}event/{{id}}'.format(bp=path),
                             templated=True, title="Event")
     response = make_response(representation.as_json(), 200)

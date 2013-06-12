@@ -7,16 +7,6 @@ from .domain import Event
 
 class EventsService(Service):
 
-    def get_events_for_day(self, dt, start, count):
-        """Get events starting the given day (between 00:00 and 23:59)
-        :param dt: datetime of the given day (used for day, month, year only)
-        :param start: first result to retrieve
-        :param count: number of results to retrieve
-        :return: list of Event domain objects (empty list if no results)
-        """
-        dt_start = dt.replace(hour=0, minute=0, second=0)
-        return self.search_events_by_date(dt_start, start, count)
-
     def search_events_by_date(self, dt_start, start, count, dt_end=None):
         """Search events by date
         :param dt_start: datetime object
