@@ -2,13 +2,15 @@ from flask import Blueprint, request, make_response
 
 from moxie.core.representations import HALRepresentation
 
-from .views import EventsToday, EventsForDate, EventView
+from .views import EventsToday, EventsForDate, EventView, EventsSearch
 
 
 def create_blueprint(blueprint_name, conf):
     events_blueprint = Blueprint(blueprint_name, __name__, **conf)
 
     events_blueprint.add_url_rule('/', view_func=get_routes)
+
+    events_blueprint.add_url_rule('/search', view_func=EventsSearch.as_view('search'))
 
     events_blueprint.add_url_rule('/today', view_func=EventsToday.as_view('today'))
 
@@ -24,6 +26,8 @@ def get_routes():
     representation = HALRepresentation({})
     representation.add_curie('hl', 'http://moxie.readthedocs.org/en/latest/http_api/events.html#{rel}')
     representation.add_link('self', '{bp}'.format(bp=path))
+    representation.add_link('hl:search', '{bp}search'.format(bp=path),
+                            title="Search events")
     representation.add_link('hl:today', '{bp}today'.format(bp=path),
                             title='Today events')
     representation.add_link('hl:date', '{bp}{{yyyy}}-{{mm}}-{{dd}}'.format(bp=path),

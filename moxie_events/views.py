@@ -12,6 +12,42 @@ from .services import EventsService
 from .representations import HALEventRepresentation, HALEventsRepresentation
 
 
+class EventsSearch(ServiceView):
+
+    @cache.cached(timeout=600, key_prefix=args_cache_key)
+    def handle_request(self):
+        service = EventsService.from_context()
+        start = request.args.get('start', 0)
+        count = request.args.get('count', 35)
+        dt_start = request.args.get('from', None)
+        dt_end = request.args.get('to', None)
+
+        if not dt_start:
+            return abort(400, "'from' parameter is mandatory (e.g. 2012-12-12)")
+
+        if dt_start == "now":
+            dt_start = datetime.now()
+        else:
+            try:
+                dt_start = to_datetime(dt_start)
+            except ValueError as ve:
+                return abort(400, 'from: {m}'.format(m=ve.message))
+
+        if dt_end:
+            try:
+                dt_end = to_datetime(dt_end)
+            except ValueError as ve:
+                return abort(400, 'to: {m}'.format(m=ve.message))
+
+        results, size = service.search_events_by_date(dt_start, start, count, dt_end=dt_end)
+        return {'results': results, 'start': start, 'count': count, 'size': size}
+
+    @accepts(JSON, HAL_JSON)
+    def as_json(self, response):
+        return HALEventsRepresentation(response['results'], request.url_rule.endpoint, response['start'],
+                                       response['count'], response['size']).as_json()
+
+
 class EventsToday(ServiceView):
 
     expires = datetime.utcnow().replace(hour=23, minute=59, second=59)
@@ -76,3 +112,8 @@ class EventView(ServiceView):
             return response
         else:
             return HALEventRepresentation(response, request.url_rule.endpoint).as_json()
+
+
+def to_datetime(dt):
+    year, month, day = dt.split('-')
+    return datetime(int(year), int(month), int(day))
