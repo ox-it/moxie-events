@@ -50,7 +50,8 @@ class Event(object):
         event = Event(d['event_uid'])
         event.source_url = d['source_url']
         event.name = d['event_title']
-        event.description = d['event_description']
+        if 'event_description' in d:
+            event.description = d['event_description']
         event.start_time = Event._parse_date(d['event_start'])
         event.end_time = Event._parse_date(d['event_end'])
         if 'event_location' in d:
