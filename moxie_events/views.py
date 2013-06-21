@@ -4,7 +4,7 @@ from flask import request
 
 from moxie.core.views import ServiceView, accepts
 from moxie.core.cache import cache, args_cache_key
-from moxie.core.exceptions import abort
+from moxie.core.exceptions import BadRequest, NotFound
 from werkzeug.wrappers import BaseResponse
 from moxie.core.representations import HAL_JSON, JSON
 
@@ -23,7 +23,7 @@ class EventsSearch(ServiceView):
         dt_end = request.args.get('to', None)
 
         if not dt_start:
-            return abort(400, "Parameter 'from' is mandatory (e.g. 2012-12-12)")
+            raise BadRequest("Parameter 'from' is mandatory (e.g. 2012-12-12)")
 
         if dt_start == "now":
             dt_start = datetime.now()
@@ -31,13 +31,13 @@ class EventsSearch(ServiceView):
             try:
                 dt_start = to_datetime(dt_start, 0, 0)
             except ValueError as ve:
-                return abort(400, "Parameter 'from': value error: {m}".format(m=ve.message))
+                raise BadRequest("Parameter 'from': value error: {m}".format(m=ve.message))
 
         if dt_end:
             try:
                 dt_end = to_datetime(dt_end, 23, 59)
             except ValueError as ve:
-                return abort(400, "Parameter 'to': {m}".format(m=ve.message))
+                raise BadRequest("Parameter 'to': {m}".format(m=ve.message))
 
         results, size = service.search_events_by_date(dt_start, start, count, dt_end=dt_end)
         return {'results': results, 'start': start, 'count': count, 'size': size}
@@ -63,7 +63,7 @@ class EventView(ServiceView):
         if event:
             return event
         else:
-            return abort(404)
+            raise NotFound()
 
     @accepts(JSON, HAL_JSON)
     def as_json(self, response):
