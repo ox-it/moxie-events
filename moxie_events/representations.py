@@ -19,7 +19,8 @@ class EventRepresentation(Representation):
             'location': self.event.location,
             'start_time': self.event.start_time.isoformat(),
             'end_time': self.event.end_time.isoformat(),
-            'source_url': self.event.source_url
+            'source_url': self.event.source_url,
+            'signature': self.event.signature,      # signature is a hash of the event which defines its uniqueness
         }
 
 
