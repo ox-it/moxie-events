@@ -24,6 +24,8 @@ class Event(object):
 
     source_url = None
 
+    signature = None
+
     def to_solr_dict(self):
         """Get event as a dict with Solr keys
         :return: dict
@@ -35,7 +37,8 @@ class Event(object):
             'event_title': self.name,
             'event_description': self.description,
             'event_start': self._date_to_solr(self.start_time),
-            'event_end': self._date_to_solr(self.end_time)
+            'event_end': self._date_to_solr(self.end_time),
+            'signature': self.signature,
         }
         if self.location:
             data['event_location'] = self.location
@@ -50,6 +53,7 @@ class Event(object):
         event = Event(d['event_uid'])
         event.source_url = d['source_url']
         event.name = d['event_title']
+        event.signature = d['signature']
         if 'event_description' in d:
             event.description = d['event_description']
         event.start_time = Event._parse_date(d['event_start'])

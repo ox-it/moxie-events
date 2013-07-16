@@ -35,7 +35,7 @@ class HALEventRepresentation(EventRepresentation):
     def as_dict(self):
         base = super(HALEventRepresentation, self).as_dict()
         representation = HALRepresentation(base)
-        representation.add_link('self', url_for(self.endpoint, ident=self.event.uid))
+        representation.add_link('self', url_for(self.endpoint, ident=self.event.signature))
         return representation.as_dict()
 
 
