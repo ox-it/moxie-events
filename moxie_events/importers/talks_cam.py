@@ -1,6 +1,8 @@
 from datetime import datetime
 from lxml import etree
 import logging
+from StringIO import StringIO
+
 import requests
 from requests import RequestException
 
@@ -19,28 +21,28 @@ class TalksCamEventsImporter(object):
 
     def run(self):
         for feed in self.feeds:
-            data = self.retrieve_feed(feed)
-            if data:
-                self.indexer.index(self.index_feed(data))
+            data, encoding = self.retrieve_feed(feed)
+            self.indexer.index(self.index_feed(data, encoding))
 
     def retrieve_feed(self, url):
         try:
             response = requests.get(url, timeout=self.FETCH_TIMEOUT, config={'danger_mode': True})
-            return response.text
+            return response.content, response.encoding
         except RequestException as re:
-            logger.warning('Error fetching events (TalksCam)', exc_info=True,
+            logger.exception('Error fetching events (TalksCam)',
                            extra={
                                'data': {
                                    'url': url}
                            })
-            return None
+            raise re
 
-    def index_feed(self, data):
+    def index_feed(self, data, encoding):
         """Index talks in given feed
         :param url: URL of the feed
         :return: list of events
         """
-        xml = etree.parse(data)
+        parser = etree.XMLParser(ns_clean=True,recover=True,encoding=encoding)
+        xml = etree.parse(StringIO(data), parser)
         talks = []
         for talk in xml.findall('talk'):
             try:
