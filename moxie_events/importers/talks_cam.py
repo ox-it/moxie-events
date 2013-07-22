@@ -1,6 +1,8 @@
 from datetime import datetime
 from lxml import etree
 import logging
+import requests
+from requests import RequestException
 
 from moxie_events.domain import Event
 
@@ -17,14 +19,28 @@ class TalksCamEventsImporter(object):
 
     def run(self):
         for feed in self.feeds:
-            self.indexer.index(self.index_feed(feed))
+            data = self.retrieve_feed(feed)
+            if data:
+                self.indexer.index(self.index_feed(data))
 
-    def index_feed(self, url):
+    def retrieve_feed(self, url):
+        try:
+            response = requests.get(url, timeout=self.FETCH_TIMEOUT, config={'danger_mode': True})
+            return response.text
+        except RequestException as re:
+            logger.warning('Error fetching events (TalksCam)', exc_info=True,
+                           extra={
+                               'data': {
+                                   'url': url}
+                           })
+            return None
+
+    def index_feed(self, data):
         """Index talks in given feed
         :param url: URL of the feed
         :return: list of events
         """
-        xml = etree.parse(url)
+        xml = etree.parse(data)
         talks = []
         for talk in xml.findall('talk'):
             try:
