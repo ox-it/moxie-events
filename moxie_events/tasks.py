@@ -16,7 +16,7 @@ def import_ox_talks(force_update=False):
     app = create_app()
     with app.blueprint_context(BLUEPRINT_NAME):
         if FEEDS_URLS_KEY in app.config:
-            importer = TalksCamEventsImporter(app.config['TALKS_CAM_URLS'], searcher)
+            importer = TalksCamEventsImporter(app.config[FEEDS_URLS_KEY], searcher)
             importer.run()
         else:
             logger.warn("TalksCam provider not configured with {key} in config.".format(key=FEEDS_URLS_KEY))
