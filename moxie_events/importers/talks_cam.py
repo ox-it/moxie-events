@@ -29,11 +29,11 @@ class TalksCamEventsImporter(object):
             response = requests.get(url, timeout=self.FETCH_TIMEOUT, config={'danger_mode': True})
             return response.content, response.encoding
         except RequestException as re:
-            logger.exception('Error fetching events (TalksCam)',
-                           extra={
-                               'data': {
-                                   'url': url}
-                           })
+            logger.error('Error fetching events (TalksCam)', exc_info=True,
+                         extra={
+                             'data': {
+                                 'url': url}
+                         })
             raise re
 
     def index_feed(self, data, encoding):
