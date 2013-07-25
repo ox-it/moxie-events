@@ -26,7 +26,8 @@ class TalksCamEventsImporter(object):
 
     def retrieve_feed(self, url):
         try:
-            response = requests.get(url, timeout=self.FETCH_TIMEOUT, config={'danger_mode': True})
+            response = requests.get(url, timeout=self.FETCH_TIMEOUT)
+            response.raise_for_status()
             return response.content, response.encoding
         except RequestException as re:
             logger.error('Error fetching events (TalksCam)', exc_info=True,
