@@ -44,6 +44,8 @@ class HALEventRepresentation(EventRepresentation):
 class ICalEventRepresentation(EventRepresentation):
 
     def as_event_ical(self):
+        """Get the vEvent component
+        """
         event = Event()
         event.add('summary', self.event.name)
         event.add('dtstart', self.event.start_time)
@@ -54,6 +56,9 @@ class ICalEventRepresentation(EventRepresentation):
         return event
 
     def as_ical(self):
+        """Get the event as a valid iCalendar feed
+        (container + event)
+        """
         cal = Calendar()
         cal.add('prodid', '-github.com/ox-it/moxie-events-')
         cal.add('version', '2.0')
@@ -97,6 +102,9 @@ class ICalEventsRepresentation(object):
         self.events = events
 
     def as_ical(self):
+        """Get a valid iCal feed composed of zero or more
+        vEvent components
+        """
         cal = Calendar()
         cal.add('prodid', '-github.com/ox-it/moxie-events-')
         cal.add('version', '2.0')
