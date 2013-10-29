@@ -3,6 +3,9 @@ from icalendar import Calendar, Event
 
 from moxie.core.representations import Representation, HALRepresentation, get_nav_links
 
+# used as the producer ID of the iCal feeds
+ICAL_VENDOR = '-github.com/ox-it/moxie-events-'
+
 
 class EventRepresentation(Representation):
 
@@ -60,7 +63,7 @@ class ICalEventRepresentation(EventRepresentation):
         (container + event)
         """
         cal = Calendar()
-        cal.add('prodid', '-github.com/ox-it/moxie-events-')
+        cal.add('prodid', ICAL_VENDOR)
         cal.add('version', '2.0')
         event = self.as_event_ical()
         cal.add_component(event)
@@ -106,7 +109,7 @@ class ICalEventsRepresentation(object):
         vEvent components
         """
         cal = Calendar()
-        cal.add('prodid', '-github.com/ox-it/moxie-events-')
+        cal.add('prodid', ICAL_VENDOR)
         cal.add('version', '2.0')
         for event in self.events:
             vevent = ICalEventRepresentation(event).as_event_ical()
