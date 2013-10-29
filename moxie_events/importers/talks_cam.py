@@ -59,13 +59,20 @@ class TalksCamEventsImporter(object):
         """
         event = Event(talk.find('id').text)
         event.name = talk.find('title').text.strip()
-        description = talk.find('abstract').text
-        if description:
-            event.description = description.strip()
+        description = talk.find('abstract')
+        if description is not None and description.text:
+            event.description = description.text.strip()
         event.source_url = talk.find('url').text
         event.start_time = self.parse_date(talk.find('start_time').text)
-        event.end_time = self.parse_date(talk.find('start_time').text)
-        event.location = talk.find('venue').text.strip()
+        end_time = talk.find('end_time')
+        if end_time is not None:
+            event.end_time = self.parse_date(end_time.text)
+        else:
+            # if there is no end time, defaults to the start time
+            event.end_time = event.start_time
+        location = talk.find('venue')
+        if location is not None:
+            event.location = location.text.strip()
         return event.to_solr_dict()
 
     def parse_date(self, date):

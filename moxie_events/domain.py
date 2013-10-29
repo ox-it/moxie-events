@@ -35,11 +35,12 @@ class Event(object):
             'source_url': self.source_url,
             'event_uid': self.uid,
             'event_title': self.name,
-            'event_description': self.description,
             'event_start': self._date_to_solr(self.start_time),
             'event_end': self._date_to_solr(self.end_time),
             'signature': self.signature,
         }
+        if self.description:
+            data['event_description'] = self.description
         if self.location:
             data['event_location'] = self.location
         return data
