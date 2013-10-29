@@ -1,4 +1,5 @@
 from flask import url_for, jsonify
+from icalendar import Calendar, Event
 
 from moxie.core.representations import Representation, HALRepresentation, get_nav_links
 
@@ -40,6 +41,27 @@ class HALEventRepresentation(EventRepresentation):
         return representation.as_dict()
 
 
+class ICalEventRepresentation(EventRepresentation):
+
+    def as_event_ical(self):
+        event = Event()
+        event.add('summary', self.event.name)
+        event.add('dtstart', self.event.start_time)
+        event.add('dtend', self.event.end_time)
+        event.add('description', self.event.description)
+        event.add('location', self.event.location)
+        event['uid'] = self.event.signature
+        return event
+
+    def as_ical(self):
+        cal = Calendar()
+        cal.add('prodid', '-github.com/ox-it/moxie-events-')
+        cal.add('version', '2.0')
+        event = self.as_event_ical()
+        cal.add_component(event)
+        return cal.to_ical()
+
+
 class HALEventsRepresentation(object):
 
     def __init__(self, events, endpoint, start, count, size, day=None, month=None, year=None):
@@ -67,3 +89,18 @@ class HALEventsRepresentation(object):
             representation.add_links(get_nav_links(self.endpoint, self.start, self.count, self.size))
             representation.add_link('self', url_for(self.endpoint))
         return representation.as_dict()
+
+
+class ICalEventsRepresentation(object):
+
+    def __init__(self, events):
+        self.events = events
+
+    def as_ical(self):
+        cal = Calendar()
+        cal.add('prodid', '-github.com/ox-it/moxie-events-')
+        cal.add('version', '2.0')
+        for event in self.events:
+            vevent = ICalEventRepresentation(event).as_event_ical()
+            cal.add_component(vevent)
+        return cal.to_ical()

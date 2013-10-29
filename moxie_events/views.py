@@ -7,6 +7,7 @@ from moxie.core.cache import cache, args_cache_key
 from moxie.core.exceptions import BadRequest, NotFound
 from werkzeug.wrappers import BaseResponse
 from moxie.core.representations import HAL_JSON, JSON
+from moxie_events.representations import ICalEventRepresentation, ICalEventsRepresentation
 
 from .services import EventsService
 from .representations import HALEventRepresentation, HALEventsRepresentation
@@ -51,6 +52,14 @@ class EventsSearch(ServiceView):
             return HALEventsRepresentation(response['results'], request.url_rule.endpoint, response['start'],
                                        response['count'], response['size']).as_json()
 
+    @accepts('text/calendar')
+    def as_ical(self, response):
+        if issubclass(type(response), BaseResponse):
+            # to handle 301 redirections and 404
+            return response
+        else:
+            return ICalEventsRepresentation(response['results']).as_ical()
+
 
 class EventView(ServiceView):
 
@@ -72,6 +81,14 @@ class EventView(ServiceView):
             return response
         else:
             return HALEventRepresentation(response, request.url_rule.endpoint).as_json()
+
+    @accepts('text/calendar')
+    def as_ical(self, response):
+        if issubclass(type(response), BaseResponse):
+            # to handle 301 redirections and 404
+            return response
+        else:
+            return ICalEventRepresentation(response).as_ical()
 
 
 def to_datetime(dt, hour, minute):
