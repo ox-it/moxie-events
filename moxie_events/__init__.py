@@ -2,7 +2,7 @@ from flask import Blueprint, request, make_response
 
 from moxie.core.representations import HALRepresentation
 
-from .views import EventView, EventsSearch
+from .views import EventView, EventsSearch, EventViewiCalendar
 
 
 def create_blueprint(blueprint_name, conf):
@@ -11,6 +11,8 @@ def create_blueprint(blueprint_name, conf):
     events_blueprint.add_url_rule('/', view_func=get_routes)
 
     events_blueprint.add_url_rule('/search', view_func=EventsSearch.as_view('search'))
+
+    events_blueprint.add_url_rule('/<ident>.ics', view_func=EventViewiCalendar.as_view('eventical'))
 
     events_blueprint.add_url_rule('/<ident>', view_func=EventView.as_view('event'))
 

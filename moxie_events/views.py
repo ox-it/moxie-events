@@ -91,6 +91,13 @@ class EventView(ServiceView):
             return ICalEventRepresentation(response).as_ical()
 
 
+class EventViewiCalendar(EventView):
+    """Hack in order to remove a possible response type from a ServiceView"""
+    pass
+del EventViewiCalendar.service_responses[JSON]
+del EventViewiCalendar.service_responses[HAL_JSON]
+
+
 def to_datetime(dt, hour, minute):
     year, month, day = dt.split('-')
     return datetime(int(year), int(month), int(day), hour=hour, minute=minute)
