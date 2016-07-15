@@ -8,7 +8,8 @@ from moxie_events.importers.talks_cam import TalksCamEventsImporter
 logger = logging.getLogger(__name__)
 BLUEPRINT_NAME = 'events'
 
-FEEDS_URLS_KEY = 'TALKS_CAM_URLS'
+# FEEDS_URLS_KEY = 'NEW_TALKS_URLS'
+FEEDS_URLS_KEY = 'NEW_TALKS_URLS'
 
 
 @celery.task
