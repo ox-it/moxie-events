@@ -1,5 +1,7 @@
 from datetime import datetime
+from dateutil import parser
 from lxml import etree
+import json
 import logging
 from StringIO import StringIO
 
@@ -22,7 +24,8 @@ class TalksCamEventsImporter(object):
     def run(self):
         for feed in self.feeds:
             data, encoding = self.retrieve_feed(feed)
-            self.indexer.index(self.index_feed(data, encoding))
+            events = self.index_feed(data, encoding)
+            self.indexer.index(events)
 
     def retrieve_feed(self, url):
         try:
@@ -30,6 +33,7 @@ class TalksCamEventsImporter(object):
             response.raise_for_status()
             return response.content, response.encoding
         except RequestException as re:
+            
             logger.error('Error fetching events (TalksCam)', exc_info=True,
                          extra={
                              'data': {
@@ -42,40 +46,37 @@ class TalksCamEventsImporter(object):
         :param url: URL of the feed
         :return: list of events
         """
-        parser = etree.XMLParser(ns_clean=True,recover=True,encoding=encoding)
-        xml = etree.parse(StringIO(data), parser)
+        response = json.loads(data)
         talks = []
-        for talk in xml.findall('talk'):
+        for talk in response['_embedded']['talks']:
             try:
                 talks.append(self.parse_talk(talk))
-            except:
+            except Exception as e:
                 logger.error("Couldn't parse talk", exc_info=True)
+        
         return talks
+        
 
     def parse_talk(self, talk):
         """Parse an XML "talk"
         :param xml: talk object
         :return: Event object
         """
-        event = Event(talk.find('id').text)
-        event.name = talk.find('title').text.strip()
-        description = talk.find('abstract')
-        if description is not None and description.text:
-            event.description = description.text.strip()
-        event.source_url = talk.find('url').text
-        event.start_time = self.parse_date(talk.find('start_time').text)
-        end_time = talk.find('end_time')
-        if end_time is not None:
-            event.end_time = self.parse_date(end_time.text)
-        else:
-            # if there is no end time, defaults to the start time
-            event.end_time = event.start_time
-        location = talk.find('venue')
-        if location is not None:
-            event.location = location.text.strip()
-        return event.to_solr_dict()
+        event = Event(talk['slug'])
+        event.id = talk['slug']
+        event.name = talk['title_display']
+        event.source_url = talk['_links']['self']['href']
+        event.start_time = self.parse_date(talk['start'])
+        event.end_time = self.parse_date(talk['end'])
+        if 'location_summary' in talk:
+            event.location = talk['location_summary']
+        
+        solr_dict = event.to_solr_dict()
+        return solr_dict
 
     def parse_date(self, date):
-        """Parse date as Tue, 21 Feb 2012 23:49:34 +0000
+        """Parse date as ISO. e.g 2016-07-14T10:30:00+01:00
         """
-        return datetime.strptime(date[:-6], "%a, %d %b %Y %H:%M:%S")
+        return parser.parse(date)
+        
+        
