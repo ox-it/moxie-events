@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class TalksCamEventsImporter(object):
 
-    FETCH_TIMEOUT = 10
+    FETCH_TIMEOUT = 30
 
     def __init__(self, feeds, indexer):
         self.feeds = feeds
